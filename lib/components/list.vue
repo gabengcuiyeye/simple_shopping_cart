@@ -1,29 +1,41 @@
 <style lang="sass">
-
+    .content_wrap{
+        width: 800px;
+        margin: 0 auto;
+    }
+    .list{
+        overflow: hidden;
+        margin-bottom: 50px;
+    }
+    .pic{
+        float: left;
+        width: 100px;
+        img{
+            width: 100px;
+        }
+    }
+    .text{
+        float: left;
+        width: 500px;
+        line-height: 100px;
+        margin-left: 20px;
+    }
 </style>
 <template>
-    <!--<div class="content_wrap" v-if="voting_desc">-->
-        <!--<div class="header">-->
-            <!--<img :src="voting_list.header">-->
-        <!--</div>-->
-        <!--<div class="teacher_list">-->
-            <!--<a  v-for="teacher_regular_list in teacher_regular_lists" :href="href_param" @click="save_teacher_mes" data-id="{{teacher_regular_list.f_uid}}" data-name="{{teacher_regular_list.f_nick}}">-->
-                <!--<div class="teacher_list_content">-->
-                    <!--<img class="teacher_list_avatar" :src="teacher_regular_list.f_avatar">-->
-                    <!--<p class="teacher_name">{{teacher_regular_list.f_nick}}</p>-->
-                <!--</div>-->
-            <!--</a>-->
-            <!--<a  v-for="teacher_list in teacher_lists" :href="href_param" @click="save_teacher_mes" data-id="{{teacher_list.f_uid}}" data-name="{{teacher_list.f_nick}}">-->
-                <!--<div class="teacher_list_content">-->
-                    <!--<img class="teacher_list_avatar" :src="teacher_list.f_avatar">-->
-                    <!--<p class="teacher_name">{{teacher_list.f_nick}}</p>-->
-                <!--</div>-->
-            <!--</a>-->
-        <!--</div>-->
-    <!--</div>-->
-    <div>test</div>
+    <div class="content_wrap">
+        <div class="list" v-for="list in mess">
+            <div class="pic" >
+                <img :src="list.f_avatar">
+            </div>
+            <div class="text">
+                testhhhhhh
+            </div>
+        </div>
+
+    </div>
 </template>
 <script>
+    import Vue from 'vue'
     export default {
         props: {
             voting_desc: {
@@ -46,10 +58,11 @@
         data(){
             return {
                 totaltime:9,
-                voting_list:{header:"//img.mdcdn.cn/wp/src/gg_live/img/teacher_voting_list_header.jpg?t=20161216"},
+                voting_list:{header:"https://img.mdcdn.cn/wp/src/gg_live/img/teacher_voting_list_header.jpg?t=20161216"},
                 teacher_regular_lists:[],
                 teacher_lists:[],
                 href_param:"",
+                mess:[]
             }
         },
         methods:{
@@ -61,17 +74,13 @@
         },
         init:function(){
             let self = this;
-//            $.ajax({
-//                type: "get",
-//                url: "//wx54540d14c1b298c1.mgeek.com.cn/act/teacher_voting_index/get_teacher_message?live_id="+ 17,
-//                dataType: "json",
-//                error: function (request) {
-//                    alert("系统繁忙");
-//                },
-//                success: function (response) {
-//
-//                }
-//            });
+            this.$http.get('http://localhost:4444/listUsers').then(response => {
+                // success callback
+                console.log(response.data);
+                self.mess=response.data;
+            }, response => {
+                // error callback
+            });
         }
     }
 </script>
