@@ -3,38 +3,50 @@
         width: 800px;
         margin: 0 auto;
     }
-    .list{
-        overflow: hidden;
-        margin-bottom: 50px;
-    }
-    .pic{
-        float: left;
-        width: 100px;
-        img{
-            width: 100px;
+    .content_left{
+        float:left;
+        width: 50%;
+        li{
+            width: 120px;
+            float:left;
+            text-align:center;
+            margin-right:20px;
+            font-size:12px;
+            list-style:none;
+            margin-bottom:20px;
+            img{
+                width: 120px;
+            }
         }
+    .img_wrap{
+        width: 120px;
+        height: 120px;
     }
-    .text{
+    }
+    .content_right{
         float: left;
-        width: 500px;
-        line-height: 100px;
-        margin-left: 20px;
+        width: 50%;
     }
 </style>
 <template>
     <div class="content_wrap">
-        <div class="list" v-for="list in mess">
-            <div class="pic" >
-                <img :src="list.f_avatar">
-            </div>
-            <div class="text">
-                testhhhhhh
-            </div>
+        <div class="content_left">
+            <ul>
+                <li class="" v-for="list in mess" @click="add_to_cart" data-id="{{list.f_id}}">
+                    <div class="img_wrap">
+                        <img :src="list.f_avatar">
+                    </div>
+                    <span>test</span>
+                </li>
+            </ul>
         </div>
+        <div class="content_right">
 
+        </div>
     </div>
 </template>
 <script>
+
     import Vue from 'vue'
     export default {
         props: {
@@ -58,19 +70,27 @@
         data(){
             return {
                 totaltime:9,
-                voting_list:{header:"https://img.mdcdn.cn/wp/src/gg_live/img/teacher_voting_list_header.jpg?t=20161216"},
-                teacher_regular_lists:[],
-                teacher_lists:[],
-                href_param:"",
                 mess:[]
             }
         },
         methods:{
-            save_teacher_mes(event){//把老师分组和id传到下一页,现在又不需要分组了，先注释
-                let uid = $(event.currentTarget).attr("data-id");
-                let name = $(event.currentTarget).attr("data-name");
-                this.href_param = 'http://wx54540d14c1b298c1.mgeek.com.cn/act/teacher_voting_detail/index?uid=' + uid +'&name=' + name;
-            },
+            add_to_cart:function (e) {
+                let item_id = parseInt(e.currentTarget.getAttribute('data-id'));//vue获取当前dom对象
+                let data = {id:2333,item_id:item_id};
+                $.ajax({
+                    type: "post",
+                    url: "http://localhost:4444/post",
+                    dataType: "json",
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        console.log('333');
+                    },
+                    error: function (request) {
+
+                    }
+                });
+            }
         },
         init:function(){
             let self = this;
