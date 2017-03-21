@@ -77,7 +77,8 @@
                 let data = {id:2333,item_id:item_id};
                 $.ajax({
                     type: "post",
-                    url: "http://localhost:4444/post",
+                    url: "/add_to_cart",
+
                     dataType: "json",
                     data: JSON.stringify(data),
                     contentType: 'application/json',
@@ -86,12 +87,18 @@
                             console.log('加入购物车成功');
                             let div = document.createElement('div');
                             div.setAttribute('class','item');
-                            let img_src = document.getElementById('img_src').getAttribute('src');
+                            let img_src;
+                            if(e.target.nodeName==='IMG'){
+                                img_src = e.target.getAttribute('src');
+                            }else if(e.target.nodeName==='SPAN'){
+                                img_src = e.target.previousSbiling.getAttribute('src');
+                            }
                             let str = '<div class="img_wrap"> '+'<img src="'+ img_src +'">'
                                     + '</div><span>test1</span>';
                             div.innerHTML = str;
                             document.getElementById('content_right').appendChild(div);
-
+                        }else if(response.errcode ===2){
+                            alert('已经添加过了哦');
                         }
                     },
                     error: function (request) {
@@ -101,10 +108,26 @@
         },
         init:function(){
             let self = this;
-            this.$http.get('http://localhost:4444/listUsers').then(response => {
+            this.$http.get('/item_list').then(response => {
                 // success callback
-                console.log(response.data);
                 self.mess=response.data;
+            }, response => {
+                // error callback
+            });
+            this.$http.post('/search_cart',{user_id:2333}).then(response => {
+                console.log(response.data);
+                if(response.data.errcode===0){
+                    for(let i=0,len=response.data.data.length;i<len;i++){
+                        let content_right = document.getElementById('content_right'),
+                            div = document.createElement('div');
+                        div.setAttribute('class','item');
+                        let str = '<div class="img_wrap"> '+'<img src="'+ response.data.data[i][0].f_avatar +'">'
+
+                            + '</div><span>'+response.data.data[i][0].f_name+'</span>';
+                        div.innerHTML = str;
+                        content_right.appendChild(div);
+                    }
+                }
             }, response => {
                 // error callback
             });
