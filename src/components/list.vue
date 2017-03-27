@@ -115,15 +115,15 @@
                 // error callback
             });
             this.$http.post('/search_cart',{user_id:2333}).then(response => {
-                console.log(response.data);
                 if(response.data.errcode===0){
-                    for(let i=0,len=response.data.data.length;i<len;i++){
+                    let data = response.data;
+                    for(let i=0,len=data.data.length;i<len;i++){
                         let content_right = document.getElementById('content_right'),
                             div = document.createElement('div');
                         div.setAttribute('class','item');
-                        let str = '<div class="img_wrap"> '+'<img src="'+ response.data.data[i][0].f_avatar +'">'
+                        let str = '<div class="img_wrap"> '+'<img src="'+ data.data[i].f_avatar +'">'
 
-                            + '</div><span>'+response.data.data[i][0].f_name+'</span>';
+                            + '</div><span>'+data.data[i].f_name+'</span>';
                         div.innerHTML = str;
                         content_right.appendChild(div);
                     }
