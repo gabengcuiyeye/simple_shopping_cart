@@ -40,77 +40,21 @@ var insertSQL = 'insert into t_list(f_name,f_avatar) values("haha","http://g.mdc
 var selectSQL = 'select * from t_list limit 4';
 
 var search_result ;
-// var deleteSQL = 'delete from t_user';
-// var updateSQL = 'update t_user set name="conan update"  where name="conan"';
 
-//delete
-// conn.query(deleteSQL, function (err0, res0) {
-//     if (err0) console.log(err0);
-//     console.log("DELETE Return ==> ");
-//     console.log(res0);
-
-//insert
-// conn.query(insertSQL, function (err1, res1) {
-    // if (err1) console.log(err1);
-    // console.log("INSERT Return ==> ");
-    // console.log(res1);
-//})
-
-//query
 
 
 conn.query(selectSQL, function (err2, rows) {
     if (err2) console.log(err2);
-
-
     seach_result = JSON.stringify(rows);
 
     app.get('/item_list', function (req, res) {//app是express实例
-        // fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
-        //     console.log( data );
-        //     res.end( data );
-        // });
-        // console.log(666);
-        // console.log(seach_result);
         res.header("Access-Control-Allow-Origin", "*");
         res.end(seach_result);
     });
 });
 
-
-    //
-    //     //update
-    //     conn.query(updateSQL, function (err3, res3) {
-    //         if (err3) console.log(err3);
-    //         console.log("UPDATE Return ==> ");
-    //         console.log(res3);
-    //
-    //         //query
-    //         conn.query(selectSQL, function (err4, rows2) {
-    //             if (err4) console.log(err4);
-    //
-    //             console.log("SELECT ==> ");
-    //             for (var i in rows2) {
-    //                 console.log(rows2[i]);
-    //             }
-    //         });
-    //     });
-//     });
-// });
-
-
-//
-// conn.end();
-
-
-
-
-
-
-
 app.post('/add_to_cart', function (req, res) {
     let response = req.body;
-    //console.log(req.body);
     let query = 'SELECT * FROM t_item_user WHERE f_item_id  = ?';
     let query_param = req.body.item_id;
 
@@ -144,70 +88,51 @@ app.post('/add_to_cart', function (req, res) {
 });
 
 
+    app.post('/search_cart', function (req, res) {
+        return new Promise(function(resolve){
+            let return_data = {
+                req :req
+            };
+            resolve(return_data);
+        })
+        .then(function(return_data){
+            let user_id=return_data.req.body.user_id;
+            let query = 'SELECT * FROM t_item_user WHERE f_uid  = ?';
+            let query_param = user_id;
 
 
-app.post('/search_cart', function (req, res) {
-    if(req){
-        let user_id=req.body.user_id;
-        let query = 'SELECT * FROM t_item_user WHERE f_uid  = ?';
-        let query_param = user_id;
-        // console.log(res);
-        conn.query(query,query_param, function (err2, rows) {
-            if (err2) console.log(err2);
-
+            return new Promise(function(resolve){
+                conn.query(query,query_param, function (err2, rows) {
+                    resolve(rows);
+                });
+            });
+        }).then(function(rows){
             if(rows.length>0){
-                console.log('my_cart_item');
-                let item_id_arr=[];
-
-                let query_item = 'SELECT * FROM t_list WHERE f_id  = ?';
-                let query_item_param = item_id_arr;
-                console.log(query_item_param);
-                let test_arr = [];
-
+                let query_item = 'SELECT * FROM t_list WHERE f_id  in (?)';
+                let whereIn = [];
                 for(let i=0,len=rows.length;i<len;i++){
-                    // item_id_arr.push(rows[i].f_item_id);
-
-
-                    conn.query(query_item,rows[i].f_item_id, function (err2, rowsss) {//异步分两次查。。。。
-                        test_arr.push(rowsss);
-                        console.log(rowsss);
-
-                        var $return={
-                            errcode:0,
-                            errmsg:'',
-                            data:test_arr,
-                        };
-                        setTimeout(function(){
-                            res.end(JSON.stringify($return));
-                            console.log('pppp');
-                        }, 500);
-                    });
+                    whereIn.push(rows[i].f_item_id);
                 }
+                console.log(whereIn);
 
 
+                conn.query(query_item,[whereIn], function (err2, rowss) {//异步分两次查。。。。
+                    if (err2){
+                        console.log(err2);
+                    }
+                    console.log(rowss);
+
+                    let $return={
+                        errcode:0,
+                        errmsg:'',
+                        data:rowss,
+                    };
+                    res.end(JSON.stringify($return));//返回
+
+                });
 
 
-                // let promise = new Promise(function(resolve){
-                //     let query_item = 'SELECT * FROM t_list WHERE f_id  = ?';
-                //     let query_item_param = item_id_arr;
-                //     let query_uu  = 'SELECT * FROM t_list WHERE f_id  = '+item_id_arr;
-                    // let return_data = conn.query(query_uu);
-                //     return query;
-                // });
-                // promise.then(function (data){
-                // return_data.on('result',function(rowsooo){
-                //         // test_arr.push(rows);
-                //         console.log(rowsooo);
-                //     });
-                // });
-                
-
-
-
-
-
-            }else{
-
+            }else if(rows.length==0){
                 let $return={
                     errcode:0,
                     errmsg:'',
@@ -217,14 +142,7 @@ app.post('/search_cart', function (req, res) {
             }
         });
 
-    }else{
-
-    }
-});
-
-
-
-
+    });
 
 
 var server = app.listen(4444, function () {
