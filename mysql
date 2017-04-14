@@ -1,0 +1,23 @@
+-- ----------------------------
+-- Table structure for t_item_user
+-- ----------------------------
+DROP TABLE IF EXISTS `t_item_user`;
+CREATE TABLE `t_item_user` (
+  `f_uid` int(11) NOT NULL,
+  `f_item_id` int(11) NOT NULL,
+  PRIMARY KEY (`f_item_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+-- Table structure for t_list
+-- ----------------------------
+DROP TABLE IF EXISTS `t_list`;
+CREATE TABLE `t_list` (
+  `f_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '商品id',
+  `f_name` varchar(255) DEFAULT NULL,
+  `f_create_time` datetime DEFAULT NULL,
+  `f_update_time` datetime DEFAULT NULL,
+  `f_avatar` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`f_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
