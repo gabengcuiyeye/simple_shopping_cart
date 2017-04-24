@@ -163,6 +163,7 @@ app.post('/delete_item', function (req, res) {
 
 app.get('/',function(req,res){//有index默认进index页，我把index名字改了才进入这个页面的
     console.log(9999);
+    var selectSQL = 'select * from t_list limit 4';
     conn.query(selectSQL, function (err2, rows) {
         if (err2) console.log(err2);
         var seach_result = JSON.stringify(rows);
