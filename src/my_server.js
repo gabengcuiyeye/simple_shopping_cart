@@ -2,14 +2,15 @@
 let mysql = require('mysql');
 var express = require('express');
 var path = require('path');
-
 var fs = require("fs");
+const pug = require('pug');
 
 //express设置
 var express = require('express');
 var bodyParser = require('body-parser');
 
 var app = express();
+var server = require('http').createServer(app);
 app.use(express.static(path.join(__dirname, 'public')));//静态文件托管
 app.use(express.static(path.join(__dirname, '../dist')));
 app.use(express.static(path.join(__dirname, 'components')));
@@ -19,6 +20,9 @@ app.use(bodyParser.urlencoded({            //此项必须在 bodyParser.json 下
     extended: true
 }));
 
+//模板支持
+app.set('views', path.join(__dirname, './public/view'));
+app.set('view engine', 'pug');//jade升级成了pug
 
 var conn = mysql.createConnection({
     host: 'localhost',
@@ -29,23 +33,11 @@ var conn = mysql.createConnection({
 });
 conn.connect();
 
-var insertSQL = 'insert into t_list(f_name,f_avatar) values("haha","http://g.mdcdn.cn/h5/img/icon_tool/common_detail_alarm_succ.png")';
-var selectSQL = 'select * from t_list limit 4';
-
-conn.query(selectSQL, function (err2, rows) {
-    if (err2) console.log(err2);
-    seach_result = JSON.stringify(rows);
-
-    app.get('/item_list', function (req, res) {//app是express实例
-        res.header("Access-Control-Allow-Origin", "*");
-        res.end(seach_result);
-    });
-});
-
 app.post('/add_to_cart', function (req, res) {
-    let response = req.body;
-    let query = 'SELECT * FROM t_item_user WHERE f_item_id  = ?';
-    let query_param = req.body.item_id;
+    let request = req.body;
+    let query = 'SELECT f_uid,f_item_id FROM t_item_user WHERE f_item_id  = ?';
+    let query_param = request.item_id;
+
     conn.query(query,query_param, function (err2, rows) {
         if (err2) console.log(err2);
         if(rows.length===0){
@@ -74,7 +66,7 @@ app.post('/add_to_cart', function (req, res) {
 });
 
 
-    app.post('/search_cart', function (req, res) {
+app.post('/search_cart', function (req, res) {
         return new Promise(function(resolve){
             let return_data = {
                 req :req
@@ -92,6 +84,7 @@ app.post('/add_to_cart', function (req, res) {
             });
         }).then(function(rows){
             if(rows.length>0){
+
                 let query_item = 'SELECT * FROM t_list WHERE f_id  in (?)';
                 let whereIn = [];
                 for(let i=0,len=rows.length;i<len;i++){
@@ -101,15 +94,12 @@ app.post('/add_to_cart', function (req, res) {
                     if (err2){
                         console.log(err2);
                     }
-                    console.log(rowss);
-
                     let $return={
                         errcode:0,
                         errmsg:'',
                         data:rowss,
                     };
                     res.end(JSON.stringify($return));//返回
-
                 });
             }else if(rows.length==0){
                 let $return={
@@ -125,6 +115,8 @@ app.post('/add_to_cart', function (req, res) {
 
 app.post('/delete_item', function (req, res) {
     let request = req.body;
+    console.log('********************');
+    console.log(request);
         return new Promise(function(resolve){
             resolve(request);
         })
@@ -169,12 +161,23 @@ app.post('/delete_item', function (req, res) {
         })
 });
 
+app.get('/',function(req,res){//有index默认进index页，我把index名字改了才进入这个页面的
+    console.log(9999);
+    conn.query(selectSQL, function (err2, rows) {
+        if (err2) console.log(err2);
+        var seach_result = JSON.stringify(rows);
+        /**********************pug tpl,首屏直出********************/
+        res.render('index',{//pug(jade)是express默认模板
+            init_data:seach_result,
+        });
+    });
+});
 
 var server = app.listen(4444, function () {
+    console.log('yes');
 
-        console.log('yes');
-})
-
-
+});
 
 
+module.exports = router;
+module.exports = app;
