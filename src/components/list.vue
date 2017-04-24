@@ -79,6 +79,7 @@
                     <p class="delete">删除</p>
                 </div>
             </div>
+
         </div>
     </div>
 </template>
@@ -104,8 +105,7 @@
         },
         data(){
             return {
-                totaltime:9,
-                mess:[],
+                mess:init_data,
                 cart_mess:[]
             }
         },
@@ -141,6 +141,7 @@
                         }
                     },
                     error: function (request) {
+
                     }
                 });
             },
@@ -153,7 +154,6 @@
                             parent_dom.parentNode.removeChild(parent_dom);
                         }
                     }, response => {
-
                     });
                 }else{
                     console.log(e.target);
@@ -162,13 +162,6 @@
         },
         init:function(){
             let self = this;
-            //初始化商品列表
-            this.$http.get('/item_list').then(response => {
-                // success callback
-                self.mess=response.data;
-            }, response => {
-                // error callback
-            });
             //初始化购物车
             this.$http.post('/search_cart',{user_id:2333}).then(response => {
                 if(response.data.errcode===0){
