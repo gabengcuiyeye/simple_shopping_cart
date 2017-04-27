@@ -1,5 +1,4 @@
 doctype html
-
 html(lang="en")
     head
         title= 'index'
@@ -7,6 +6,6 @@ html(lang="en")
         div(id='app')
             app
     script.
-      init_data= !{init_data};
-    script(src='http://libs.baidu.com/jquery/2.1.1/jquery.min.js')
-    script(src='http://localhost:4444/index.js')
+      list_data= !{init_list_data};
+      cart_data= !{init_cart_data};
+    script(src='/index.js')
