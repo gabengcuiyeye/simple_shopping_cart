@@ -13,5 +13,5 @@
 <h4>最近优化</h4>
 <p>引入了jade模板，可以直出数据到页面。</p>
 2. <h4>聊天室 demo</h4>
-<img src='https://g.mdcdn.cn/h5/html/test/sarah/login.png'></br>
-<img src='https://g.mdcdn.cn/h5/html/test/sarah/chatting.png'></br>
+<img src='https://g.mdcdn.cn/h5/html/test/sarah/login.png' style="width:100px;"></br>
+<img src='https://g.mdcdn.cn/h5/html/test/sarah/chatting.png' style="width:100px;"></br>
