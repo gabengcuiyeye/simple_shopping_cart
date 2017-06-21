@@ -1,4 +1,4 @@
-<h1>简易购物车</h1>
+1. <h4>简易购物车</h4>
 <p>目前完成的功能点：展示商品列表，添加商品到购物车，从购物车删除商品。</p>
 <p>个人练手项目，用vue展示页面和发送请求到node，node接收请求和返回数据。</p>
 <h4>相关配置</h4>
@@ -12,4 +12,6 @@
 <p>2.之前.babelrc文件格式没写对，js文件没有babel成功，只是单纯复制了一个文件夹过去。</p>
 <h4>最近优化</h4>
 <p>引入了jade模板，可以直出数据到页面。</p>
-
+2. <h4>聊天室 demo</h4>
+<img src='https://g.mdcdn.cn/h5/html/test/sarah/login.png'></br>
+<img src='https://g.mdcdn.cn/h5/html/test/sarah/chatting.png'></br>
