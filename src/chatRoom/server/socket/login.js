@@ -1,12 +1,13 @@
 
-let path = require('path');
-let fs = require("fs");
-let app = require('koa')();
-var serve = require('koa-static');
-let co = require('co');
+let path = require('path'),
+    fs = require("fs"),
+    app = require('koa')(),
+    serve = require('koa-static');
+
 //路由
-var router = require('koa-router')();
-let mysql = require('mysql');
+let router = require('koa-router')(),
+   mysql = require('mysql');
+
 var conn = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -18,8 +19,6 @@ conn.connect();
 
 app.use(require('koa-bodyparser')());
 
-/*****************************分割线***********************************/
-
 router.get('/test',function* (ctx, next) {
     this.body = 'Hello Koa2.0!';
 });
@@ -27,10 +26,8 @@ router.get('/test',function* (ctx, next) {
 //登录
 router.post('/login',function *(next,cb) {
     let request = this.request.body;
-    // this.returnData='test';
     this.queryMsg = `SELECT uid FROM user WHERE name = '${request.userName}' AND password=${request.password}`;
-    var returnData =yield queryUser.call(this);//
-    console.log(returnData);
+    var returnData =yield queryUser.call(this);
     this.body = returnData;
 });
 
@@ -43,7 +40,6 @@ function* queryUser(){
                     errcode: 1,
                     errmsg: '登录成功'
                 };
-                // that.returnData = JSON.stringify($return);
                 resolve(JSON.stringify($return));
             }else{
                 let $return={
@@ -56,14 +52,18 @@ function* queryUser(){
     })
 }
 
-/*****************************分割线***********************************/
+
 
 app.use(router.routes());
+
 var server = app.listen(3333, function () {
     console.log("app listening on 3333" );
 });
 
+
 var io = require('socket.io')(server);
+
+
 /****************发消息************/
 io.on('connection',socket=>{
     console.log('connection');
@@ -71,22 +71,28 @@ io.on('connection',socket=>{
     socket.on('room1', function (data) {
         socket.join('room1');
     });
+
     socket.on('postMsg', function(msg) {
-        //向除去建立该连接的客户端的所有客户端广播,试了下，这个就像qq一样，我发消息了，其他人也能看到
-        //感觉发现了新大陆。。。
-        // socket.broadcast.emit('newMsg', msg);
-        // io.sockets.in('room1').emit('newMsg', msg);//这个连自己也会通知
+        //消息通知
         socket.broadcast.to('room1').emit('newMsg',msg);//通知自己以外得人
         console.log(msg);
     });
+
+    /**************发图片******************/
+    socket.on('img', function(imgData){
+        //通过一个newImg事件分发到除自己外的每个用户
+        console.log('node后台接收图片数据成功');
+
+        //把传的图片存入数据库
+
+        //消息通知
+        socket.broadcast.emit('newImg', imgData);
+    });
+
 });
 
-// Routing
-app.use(serve('../../../../dist'));//路径怎么是这样的。。再改改,顺序有啥影响？？
-// 为啥改了一下顺序就好了哈哈哈哈哈，本来index.js找的路径不对，好像是相同文件名会找第一个地址的文件
-app.use(serve('../../app'));//这个是不是失效了啊，没有失效啊
-app.use(serve('../../../../src'));//这个是不是失效了啊，没有失效啊
-// middleware for koa
+app.use(serve('../../../../../my_test_project'));
+
 app.use(function*() {
 });
 
