@@ -58,7 +58,6 @@
                 float: right;
                 max-width: 300px;
                 font-size: 13px;
-                margin-left: 10px;
                 background-color: lightskyblue;
                 padding: 5px 10px;
                 border-radius: 5px;
@@ -75,7 +74,7 @@
                 border-width: 5px 5px;
                 border-color: transparent  transparent transparent lightskyblue;
                 border-style: solid;
-                margin-left: 192px;
+                right:90px;
             }
         }
     }
@@ -108,67 +107,101 @@
         </div>
         <div class="dialog_wrap" id="dialog_wrap">
             <!--<div class="dialog">-->
-                <!--<img src="/chatRoom/app/avatar_default.png">-->
-                <!--<div class="dialog_text">测测测测是</div>-->
+                <!--<img :src="userAvatar">-->
+                <!--<div class="dialog_text">{{msgText}}</div>-->
             <!--</div>-->
+
         </div>
         <div class="input_box">
             <input type="text" placeholder="请输入文字..." v-model="msg">
+            <selector></selector>
+            <button class="send" @click="postImg">传图</button>
             <button class="send" @click="postMsg">发送</button>
         </div>
     </div>
 </template>
 <script>
     var socket = io.connect();
-    class Chatting{
-        constructor(){
-            socket.on('newMsg', function(msg) {
-                this.my_msg =msg;
-                this.render = function(my_msg){
-                    let div =document.createElement('div');
-                    div.className = 'dialog_others';
-                    let str =
-                        '<img src="/chatRoom/app/avatar_default.png">'+
-                        `<div class="dialog_text">${this.my_msg}</div>`;
-                    div.innerHTML= str;
-                    return div;
-                };
-                document.getElementById('dialog_wrap').appendChild(this.render());
-            });
-        }
-        init(){
-            socket.emit('room1');
-        }
-
-    }
-    var chatting = new Chatting();
-    chatting.init();
-
     import Vue from 'vue'
+    import selector from './selection.vue'
+    import { mapState } from 'vuex'
+    import store from '../vuex/store'
+
     export default {
-        data(){
-            return {
-                msg:''
+        store,
+        vuex: {
+            getters: {
+                msgType: state => state.msgType,
             }
         },
+        data(){
+            return {
+                msg:'',//v-model
+                msgText:'',
+                userAvatar:'',
+                isText:true,
+                dialogBox:[],
+                imgData:''
+            }
+        },
+        components: {
+            selector
+        },
         methods:{
-            postMsg:function () {
+            postMsg:function () {//文本消息模板
                 let msg = this.msg;
-                document.getElementById('dialog_wrap').appendChild(this.render());
+                document.getElementById('dialog_wrap').appendChild(this.renderSelfDialog(msg));
                 socket.emit('postMsg', msg);
                 this.msg='';
             },
-            render:function(){
+            renderSelfDialog:function(msg){//自己发的文本消息模板
                 let div =document.createElement('div');
                 div.className = 'dialog';
                 let str =
-                    '<img src="/chatRoom/app/avatar_default.png">'+
-                    `<div class="dialog_text">${this.msg}</div>`;
+                    '<img src="/src/chatRoom/app/img/avatar_default.png">'+
+                    `<div class="dialog_text">${msg}</div>`;
                 div.innerHTML= str;
                 return div;
+            },
+            renderOthersDialog:function(msg){//对方发的文本消息模板
+                let div =document.createElement('div');
+                div.className = 'dialog_others';
+                let str =
+                    '<img src="/src/chatRoom/app/img/avatar_default.png">'+
+                    `<div class="dialog_text">${msg}</div>`;
+                div.innerHTML= str;
+                return div;
+            },
+            postImg:function(){//自己发的图片消息模板
+                let msg = this.imgData;
+                var div = document.createElement('div');
+                var str = `<div class="dialog"><img src="/src/chatRoom/app/img/avatar_default.png"><img src="${msg}"></div>`;
+                div.innerHTML = str;
+                document.getElementById('dialog_wrap').appendChild(div);
+            }
+        },
+        watch:{
+            'msgType'(){
+                if(store.state.msgType=='text')
+                    this.isText=true;
+                if(store.state.msgType=='msg')
+                    this.isText=false;
             }
         },
         init:function(){
+            var that = this;
+            //普通文本消息监听
+            socket.on('newMsg', function(msg) {
+                document.getElementById('dialog_wrap').appendChild(that.renderOthersDialog(msg));
+                //加入房间
+                 socket.emit('room1');
+
+                //图片消息监听
+                socket.on('newImg', function(msg) {
+                console.log('前端监听图片上传事件');
+                that.imgData = msg;
+
+            });
         }
     }
 </script>
